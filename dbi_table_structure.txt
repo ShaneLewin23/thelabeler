@@ -1,0 +1,15 @@
+CREATE TABLE "Users" (
+	"user_id"	TEXT NOT NULL,
+	"source"	TEXT,
+	"status"	TEXT,
+	"metadata"	TEXT,
+	PRIMARY KEY("user_id")
+);
+
+CREATE TABLE "user_groups" (
+	"group_id"	TEXT NOT NULL,
+	"name"	TEXT NOT NULL,
+	"status"	TEXT NOT NULL,
+	"metadata"	TEXT,
+	PRIMARY KEY("group_id")
+);

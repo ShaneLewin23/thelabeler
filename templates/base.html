@@ -1,0 +1,217 @@
+<html>
+    <head>
+        <script type="text/javascript">
+        // gets checked box on a radio button or returns none
+        function getRadioValue(rname){
+            var radios = document.getElementsByName(rname);
+            // cycle through radio options and return the checked value
+            for (var i = 0, length = radios.length; i < length; i++) {
+                if (radios[i].checked) {
+                    return radios[i].value;
+                }
+            }
+            // nothing is checked
+            return 'none'
+        }
+        function validate(){
+            // check that quality radio has been selected
+            rhsradio = getRadioValue('rsRadio')
+            lhsradio = getRadioValue('lsRadio')
+            if(rhsradio == 'none' || lhsradio=='none'){
+                alert("Quality options must be selected.");
+                return 0;
+            }
+            // check all-up SBS metrics radio has been selected
+            sbs = getRadioValue('sbs')
+            if(sbs == 'none'){
+                alert("Side-by-side option must be selected")
+                return 0;
+            }
+            // get hallucination checkboxes
+            var lshs = document.getElementById('lsh').checked;
+            var rshs = document.getElementById('rsh').checked;
+            // get notes
+            var lsnotes = document.getElementById('lsnotes').value;
+            var rsnotes = document.getElementById('rsnotes').value;
+            // map all this goodness to an object to pass back to flask
+            var params = {}
+            params['rhsquality'] = rhsradio;
+            params['lhsquality'] = lhsradio;
+            params['lshs'] = lshs;
+            params['rshs'] = rshs;
+            params['lsnotes'] = lsnotes;
+            params['rsnotes'] = rsnotes;
+            params['sbs'] = sbs;
+            params['task_id'] = "{{ task_id }}";
+            // set the flask route path and post
+            var path = '/sbs01'
+            post(path, params)
+        }
+        function post(path, params) {
+            // post params from the app back to flask route set by path
+            method = "post";
+            // Create a temp form that we'll post through
+            var form = document.createElement("form");
+            form.setAttribute("method", method);
+            form.setAttribute("action", path);
+            // map params into the form
+            for(var key in params) {
+                if(params.hasOwnProperty(key)) {
+                var hiddenField = document.createElement("input");
+                hiddenField.setAttribute("type", "hidden");
+                hiddenField.setAttribute("name", key);
+                hiddenField.setAttribute("value", params[key]);
+                form.appendChild(hiddenField);
+                }
+            }
+            // add the form to the document body and post it back to server
+            document.body.appendChild(form);
+            form.submit();
+        }
+        </script>
+        <style>
+            body{
+                background-color: rgb(255, 255, 255);
+                width: 1200px;
+            }
+            .leftcol{
+                width:584px; //48.5%;
+                float:left;
+                margin-left: 0px;
+                background-color: aquamarine;
+                padding: 6px;
+                height:100%;
+            }
+            .rightcol{
+                float:right;
+                width:584px; //48.5%;
+                margin-right: 0px;
+                background-color: antiquewhite;
+                padding: 6px;
+                height:100%;
+            }
+            .header{
+                width:100%;
+                height:30px;
+                top:0px;
+                left:0px;
+                text-align: center;
+                background-color: #383838;
+                //position: fixed;
+                color: white;
+                font-size: 15px;
+                padding-top: 11px;
+                margin-bottom: 35px;
+                }
+            .submit_button{
+                margin-top: 5px;
+                width: 100px;
+                height: 40px;
+                margin-left: auto;
+                margin-right: auto;
+                background-color: #A29B97;
+            }
+            .sbs_sub_div{
+                width:100%;
+                text-align: center;
+                border-top: 1px solid grey;
+                color: white;
+                font-size: 15px;
+                padding-top: 7px;
+                padding-bottom: 3px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .footer{
+                width:100%;
+                //height:30px;
+                top:0px;
+                left:0px;
+                text-align: center;
+                //background-color:lightcyan;
+                border-top: 1px solid grey;
+                color: black;
+                font-size: 15px;
+                padding-top: 7px;
+                padding-bottom: 3px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .ltd, .rtd{
+                vertical-align: top;
+                background-color: rgb(245, 240, 240);
+                width:50%;
+                padding: 16px;
+            }
+            .lsanots, .rsanots{
+                vertical-align: top;
+                background-color:rgb(255, 251, 234);
+                width:50%;
+                padding: 16px;
+                border: 1px solid lightgrey;
+            }
+            .p{
+                width: 566px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class='header'>
+            LLM SBS v0.1
+        </div>
+        <div class="mainbody">
+            <table class="mbtable">
+                <tr>
+                    <td class="ltd">
+                        <!--<div class='leftcol'>-->
+                            {% for para in lst %}
+                                <div class="p"> {{para}}</div>
+                            {% endfor %}
+                    </td>
+                    <td class="rtd">
+                        {% for para in rst %}
+                                <div class="p"> {{para}}</div>
+                            {% endfor %}
+                    </td>
+                </tr>
+                <tr>
+                    <td class='lsanots'>
+                        <u>Quality of the answer:</u> <br/>
+                        <input type="radio" name="lsRadio" value="perfect">Perfect
+                        <input type="radio" name="lsRadio" value="good">Good
+                        <input type="radio" name="lsRadio" value="ok">OK
+                        <input type="radio" name="lsRadio" value="poor">Poor
+                        <br><br>
+                        Hallucination suspected? <input type="checkbox" id="lsh" name="lsh" value="Hallucination?">
+                        <br><br>
+                        Notes:<br><textarea style="width:400px;height:75px;" id='lsnotes'></textarea><br><br>
+                    </td>
+                    <td class="rsanots">
+                        <u>Quality of the answer:</u> <br/>
+                        <input type="radio" name="rsRadio" value="perfect">Perfect
+                        <input type="radio" name="rsRadio" value="good">Good
+                        <input type="radio" name="rsRadio" value="ok">OK
+                        <input type="radio" name="rsRadio" value="poor">Poor
+                        <br><br>
+                        Hallucination suspected? <input type="checkbox" id="rsh" name="rsh" value="Hallucination?">
+                        <br><br>
+                        Notes:<br><textarea style="width:400px;height:75px;" id='rsnotes'></textarea><br><br>
+                    </td>
+                </tr>
+                </table>
+                <br>
+                <div class="footer">
+                    <input type="radio" name="sbs" value="lsmb">Left Side Much Better
+                    <input type="radio" name="sbs" value="lsb">Left Side Better
+                    <input type="radio" name="sbs" value="same">Equivalent
+                    <input type="radio" name="sbs" value="rsb">Right Side Better
+                    <input type="radio" name="sbs" value="rsmb">Right Side Much Better
+                </div>
+                <br>
+                <div class="footer">
+                    <button class="submit_button" onclick="validate()" id="submit_button">Submit</button>
+                    <br>
+                    {{ debug_text }}
+        </div>
+    </body>
+</html>
