@@ -13,3 +13,38 @@ CREATE TABLE "user_groups" (
 	"metadata"	TEXT,
 	PRIMARY KEY("group_id")
 );
+
+CREATE TABLE "group_assignment" (
+	"assignment_id"	TEXT NOT NULL,
+	"user_id"	TEXT NOT NULL,
+	"group_id"	TEXT NOT NULL,
+	"metadata"	TEXT,
+	PRIMARY KEY("assignment_id")
+);
+
+CREATE TABLE "programs" (
+	"program_id"	TEXT NOT NULL,
+	"application_name"	TEXT,
+	"user_group_id"	TEXT,
+	"status"	TEXT,
+	"metadata"	TEXT,
+	PRIMARY KEY("program_id")
+);
+
+CREATE TABLE "task_data" (
+	"task_id"	TEXT NOT NULL,
+	"application_name"	TEXT,
+	"data"	TEXT,
+	"metadata"	TEXT,
+	PRIMARY KEY("task_id")
+);
+
+CREATE TABLE "assignments" (
+	"assignment_id"	TEXT NOT NULL,
+	"program_id"	TEXT NOT NULL,
+	"user_id"	TEXT NOT NULL,
+	"task_id"	TEXT NOT NULL,
+	"status"	TEXT NOT NULL,
+	"metadata"	TEXT,
+	PRIMARY KEY("assignment_id")
+);
