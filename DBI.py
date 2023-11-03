@@ -21,12 +21,18 @@ class DataBackendInterface:
         except Exception as e:
             print(e)
         return con
-        
-    def check_if_email_exists(self, email):
-        ''' check if a user email is already in the db '''
-
-        con = self.create_connection()
-        cur = con.cursor()
+    
+    def clean_input(self, s):
+        '''
+        TODO: this is for demo purposes only and neither secure nor useful. 
+        Update this with standard scrubbing library that escapes characters properly.
+        '''
+        s = s.lower().strip()
+        allowed = 'abcdefghijklmnopqrstuvwxyz-@. '
+        for c in s: 
+            if c not in allowed:
+                s.replace(c, "\%s"%c)
+        return s
 
         # check if there's a user in the DB
         sqlstr = "select count(*) from users where email='{email}'".format(
@@ -58,7 +64,7 @@ class DataBackendInterface:
         status= "active"
 
         # format sql
-        sqlstr = '''insert into Users(user_id, email, role, status, metadata)
+        sqlstr = '''insert into users(user_id, email, role, status, metadata)
         values("{user_id}", 
                 "{email}", 
                 "{role}",
@@ -66,9 +72,9 @@ class DataBackendInterface:
                 "{metadata}");
                 '''.format(
                     user_id=user_id,
-                    email=email.lower(),
-                    role=role.lower(),
-                    status=status.lower(),
+                    email=self.clean_input(email),
+                    role=self.clean_input(role),
+                    status=self.clean_input(status),
                     metadata=metadata
                 )
         
@@ -79,7 +85,38 @@ class DataBackendInterface:
         return r
     
     def add_user_group(self, name):
-        raise Exception(NotImplemented)
+
+        con = self.create_connection()
+        cur = con.cursor()
+
+        # clean inputs
+        group_id = str(uuid4())
+        name = self.clean_input(name)
+        status = "active"
+        metadata = None
+
+        # process sqlstr
+        sqlstr = ''' insert into user_groups(group_id, name, status, metadata)
+        vaues("
+            "{group_id}", 
+            "{name}",
+            "{status}",
+            "{metadata}"
+            )
+        )'''.format(
+            group_id=group_id,
+            name=name,
+            status = status,
+            metadata = metadata
+        )
+
+        # insert
+        try: 
+            cur.execute(sqlstr)
+            con.commit()
+        except Exception as e:
+            print(e)
+        print("successfully added group: %s"%name)
     
     def assign_user_to_group(self, email, group_name):
         raise Exception(NotImplemented)
