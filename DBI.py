@@ -27,16 +27,21 @@ class DataBackendInterface:
         TODO: this is for demo purposes only and neither secure nor useful. 
         Update this with standard scrubbing library that escapes characters properly.
         '''
-        s = s.lower().strip()
-        allowed = 'abcdefghijklmnopqrstuvwxyz-@. '
+        s = s.lower().strip().strip('.')
+        allowed = 'abcdefghijklmnopqrstuvwxyz1234567890_@. '
         for c in s: 
             if c not in allowed:
                 s.replace(c, "\%s"%c)
         return s
+    
+    def check_if_email_exists(self, email):
+
+        con = self.create_connection()
+        cur = con.cursor()
 
         # check if there's a user in the DB
         sqlstr = "select count(*) from users where email='{email}'".format(
-            email=email.lower())
+            email=self.clean_input(email))
         cur.execute(sqlstr)
         cnt = cur.fetchone()[0]
         con.close()
@@ -79,8 +84,14 @@ class DataBackendInterface:
                 )
         
         # load
-        cur.execute(sqlstr)
-        r = con.commit()
+        try: 
+            cur.execute(sqlstr)
+            r = con.commit()
+        except Exception as e:
+            print(e)
+            return False;
+
+        # close 
         con.close()
         return r
     
@@ -96,30 +107,59 @@ class DataBackendInterface:
         metadata = None
 
         # process sqlstr
-        sqlstr = ''' insert into user_groups(group_id, name, status, metadata)
-        vaues("
+        sqlstr = ''' insert into user_groups (group_id, name, status, metadata)
+        values(
             "{group_id}", 
             "{name}",
             "{status}",
             "{metadata}"
-            )
-        )'''.format(
+            )'''.format(
             group_id=group_id,
             name=name,
-            status = status,
-            metadata = metadata
+            status=status,
+            metadata=metadata
         )
 
-        # insert
-        try: 
-            cur.execute(sqlstr)
-            con.commit()
-        except Exception as e:
-            print(e)
+        cur.execute(sqlstr)
+        con.commit()
+        con.close()
         print("successfully added group: %s"%name)
     
+    def get_user_id_from_email(self, email):
+
+        con = self.create_connection()
+        cur = con.cursor()
+
+        sqlstr = "select user_id from users where email = '{email}'".format(email=self.clean_input(email))
+        cur.execute(sqlstr)
+        user_id = cur.fetchone()[0]
+        con.close()
+        return user_id
+
+
+
     def assign_user_to_group(self, email, group_name):
-        raise Exception(NotImplemented)
+
+        con = self.create_connection()
+        cur = con.cursor()
+
+        # map sql 
+        assignment_id = str(uuid4())
+        user_email = self.clean_input(email)
+        group_name = self.clean_input(group_name)
+        sqlstr = "insert into group_assignment('assignment_id', 'user_email', 'group_name', 'metadata')\
+            values('{assignment_id}', '{user_email}', '{group_name}', '{metadata}')".format(
+            assignment_id=assignment_id,
+            user_email=user_email,
+            group_name=group_name,
+            metadata=None
+        )
+
+        cur.execute(sqlstr)
+        con.commit()
+        con.close()
+        return True
+
     
     def remove_user_from_group(self, email, group_name):
         raise Exception(NotImplemented)
@@ -138,10 +178,15 @@ class DataBackendInterface:
 if __name__ == '__main__': 
 
     dbi = DataBackendInterface()
-    x = dbi.check_if_email_exists("john.s.lewin@gmail.com")
-    print(x)
+    # x = dbi.check_if_email_exists("john.s.lewin@gmail.com")
+    # print(x)
 
-    dbi.addUser("john.s.lewin@gmail.com")
-    x = dbi.check_if_email_exists("john.s.lewin@gsk.com")
-    print(x)
+    # x = dbi.check_if_email_exists("john.s.lewin@gsk.com")
+    # if x is False:
+    #     y = dbi.add_user(email="john.s.lewin@gsk.com")
+    #     print(y)
+
+    # dbi.add_user_group("internal_test")
+    dbi.assign_user_to_group("john.s.lewin@gsk.com", "internal_test")
     bp = True
+
