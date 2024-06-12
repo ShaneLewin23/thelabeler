@@ -19,14 +19,37 @@ def index():
     """
     return s; 
 
+def getPostData():
+    '''Helper function to return anything posted to a dictionary.
+    TODO: Modernize. 
+    This leverages the post function in the base.html template.
+    Pretty wonky, and will create tech debt down the line. 
+    Better resolved leveraging framework libraries.
+    '''
+    # the js in base.html passes data from from into a varible called params
+    pd = str(request.get_data('params'))
+    data = {}
+    for elt in pd.split('&'):
+        k,v = elt.split('=')
+        data[k] = v
+    return data
+
 @app.route('/query', methods=['GET', 'POST'])
 def query_interface():
     
     if request.method == 'POST': 
-        pd = str(request.get_data('params'))
-        data = {}
+        pd = getPostData()
         
-    query_results = "RAd!"
+    else:
+        data = {}
+    
+    # get data from the qeurybox in query.html
+    try: 
+        query_results = data['querybox']
+    
+    except:
+        query_results = "nope"
+
     return render_template("queryI.html",
                            header_text="Query Interface",
                            query_results = query_results

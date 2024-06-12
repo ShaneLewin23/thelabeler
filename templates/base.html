@@ -1,7 +1,35 @@
 <html>
     <head>
         <script type="text/javascript">
-        // gets checked box on a radio button or returns none
+
+            function post(path, params) {
+                // post params from the app back to flask route set by path
+                method = "post";
+                // Create a temp form that we'll post through
+
+                var form = document.createElement("form");
+                form.setAttribute("method", method);
+                form.setAttribute("action", path);
+                // map params into the form
+                for(var key in params) {
+                    if(params.hasOwnProperty(key)) {
+                    var hiddenField = document.createElement("input");
+                    hiddenField.setAttribute("type", "hidden");
+                    hiddenField.setAttribute("name", key);
+                    hiddenField.setAttribute("value", params[key]);
+                    form.appendChild(hiddenField);
+                    }
+                }
+                // add the form to the document body and post it back to server
+                document.body.appendChild(form);
+                form.submit();
+            }
+        </script> 
+
+    <script type="text/javascript">
+
+        // generic function to grab radio values in all forms 
+
         function getRadioValue(rname){
             var radios = document.getElementsByName(rname);
             // cycle through radio options and return the checked value
@@ -12,63 +40,13 @@
             }
             // nothing is checked
             return 'none'
-        }
-        function validate(){
-            // check that quality radio has been selected
-            rhsradio = getRadioValue('rsRadio')
-            lhsradio = getRadioValue('lsRadio')
-            if(rhsradio == 'none' || lhsradio=='none'){
-                alert("Quality options must be selected.");
-                return 0;
-            }
-            // check all-up SBS metrics radio has been selected
-            sbs = getRadioValue('sbs')
-            if(sbs == 'none'){
-                alert("Side-by-side option must be selected")
-                return 0;
-            }
-            // get hallucination checkboxes
-            var lshs = document.getElementById('lsh').checked;
-            var rshs = document.getElementById('rsh').checked;
-            // get notes
-            var lsnotes = document.getElementById('lsnotes').value;
-            var rsnotes = document.getElementById('rsnotes').value;
-            // map all this goodness to an object to pass back to flask
-            var params = {}
-            params['rhsquality'] = rhsradio;
-            params['lhsquality'] = lhsradio;
-            params['lshs'] = lshs;
-            params['rshs'] = rshs;
-            params['lsnotes'] = lsnotes;
-            params['rsnotes'] = rsnotes;
-            params['sbs'] = sbs;
-            params['task_id'] = "{{ task_id }}";
-            // set the flask route path and post
-            var path = '/sbs01'
-            post(path, params)
-        }
-        function post(path, params) {
-            // post params from the app back to flask route set by path
-            method = "post";
-            // Create a temp form that we'll post through
-            var form = document.createElement("form");
-            form.setAttribute("method", method);
-            form.setAttribute("action", path);
-            // map params into the form
-            for(var key in params) {
-                if(params.hasOwnProperty(key)) {
-                var hiddenField = document.createElement("input");
-                hiddenField.setAttribute("type", "hidden");
-                hiddenField.setAttribute("name", key);
-                hiddenField.setAttribute("value", params[key]);
-                form.appendChild(hiddenField);
-                }
-            }
-            // add the form to the document body and post it back to server
-            document.body.appendChild(form);
-            form.submit();
-        }
-        </script>
+        } 
+    </script>
+
+    {% block page_specific_form_validation %}
+
+    {% endblock %}
+
         <style>
             body{
                 background-color: rgb(255, 255, 255);

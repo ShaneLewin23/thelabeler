@@ -24,7 +24,7 @@ class DataBackendInterface:
     
     def clean_input(self, s):
         '''
-        TODO: this is for demo purposes only and neither secure nor useful. 
+        TODO: this is for demo purposes only and is not secure. 
         Update this with standard scrubbing library that escapes characters properly.
         '''
         s = s.lower().strip().strip('.')
@@ -159,12 +159,58 @@ class DataBackendInterface:
         con.commit()
         con.close()
         return True
-
     
     def remove_user_from_group(self, email, group_name):
-        raise Exception(NotImplemented)
+
+        con = self.create_connection()
+        cur = con.cursor()
+
+        sqlstr = "delete from group_assignment where email='{email}' and group_name='{group_name}'".format(
+            email=self.clean_input(email),
+            group_name=self.clean_input(group_name)
+        )
+
+        cur.execute(sqlstr)
+        con.commit()
+        con.close()
+
+    def get_users_in_group(self, group_name):
+
+        con = self.create_connection()
+        cur = con.cursor()
+        sqlstr = "select user_email from group_assignment where group_name='{group_name}'".format(
+            group_name=self.clean_input(group_name))
+        
+        cur.execute(sqlstr)
+        data = cur.fetchall()
+        con.close()
+        users = []
+        for row in data: 
+            users.append(row[0])
+        return users
+
     
-    def create_program(self, name, data, appliation, user_group, overlap, priority=None):
+    def create_program(self, name, data, application, user_group, overlap, priority=None):
+        '''
+        INPUT: 
+            Overlap: in the format: x%a,y%b, which can be interpreted as x% gets a overlap and y% gets b overlap
+            E.G. 75%3,25%1 would have 75% of annotations with an overlap of 3 and 25% 1 overlap
+        '''
+        # split out the overlap into x,y,a,b components (see input in the doc/function definition)
+        olparts = overlap.split(',')
+        ox = olparts[0].split('%')[0]
+        oa = olparts[0].split('%')[1]
+        oy = olparts[1].split('%')[0]
+        ob = olparts[1].split('%')[1]
+
+        # get all the users that will be assigned work in this application 
+        users = self.get_users_in_group(user_group)
+
+        
+        # process data for the LLM SBS application
+        if application == "LLM_sbs_v0.1":
+            pass
+
         raise Exception(NotImplemented)
     
     def start_program(self, program_name):
@@ -186,7 +232,10 @@ if __name__ == '__main__':
     #     y = dbi.add_user(email="john.s.lewin@gsk.com")
     #     print(y)
 
+    #dbi.assign_user_to_group('john.lewin@gmail.com', "internal_test")
     # dbi.add_user_group("internal_test")
-    dbi.assign_user_to_group("john.s.lewin@gsk.com", "internal_test")
+    #dbi.assign_user_to_group("john.s.lewin@gsk.com", "internal_test")
+    x = dbi.get_users_in_group('internal_test')
+    print(x)
     bp = True
 

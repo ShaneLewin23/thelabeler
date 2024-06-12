@@ -1,9 +1,24 @@
 {% extends "base.html" %}    
 
+{% block page_specific_form_validation %}
+
+<script type="text/javascript">
+    function validate(){
+        var query = document.getElementById('querybox');  
+        params = {}
+        params['query'] = query;
+        var path = '/query';
+        post(path, params);
+    }
+</script>
+{% endblock %}
+
 {% block body %}
 
 <div> 
-    <textarea style="width:400px;" id='querybox'></textarea><br>
+    <textarea id="querybox" value="enter sqlquery here"></textarea><br>
+    <button class="submit_button" onclick="validate()" id="querybutton">Query!</button>
+    <br>
 </div>
 <div>
     {{ query_results }}

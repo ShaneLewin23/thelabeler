@@ -1,5 +1,47 @@
 {% extends "base.html" %}    
 
+{% block page_specific_form_validation %}
+
+<script type="text/javascript">
+
+    function validate(){
+        // check that quality radio has been selected
+        rhsradio = getRadioValue('rsRadio')
+        lhsradio = getRadioValue('lsRadio')
+        if(rhsradio == 'none' || lhsradio=='none'){
+            alert("Quality options must be selected.");
+            return 0;
+        }
+        // check all-up SBS metrics radio has been selected
+        sbs = getRadioValue('sbs')
+        if(sbs == 'none'){
+            alert("Side-by-side option must be selected")
+            return 0;
+        }
+        // get hallucination checkboxes
+        var lshs = document.getElementById('lsh').checked;
+        var rshs = document.getElementById('rsh').checked;
+        // get notes
+        var lsnotes = document.getElementById('lsnotes').value;
+        var rsnotes = document.getElementById('rsnotes').value;
+
+        // map all this goodness to an object to pass back to flask
+        var params = {}
+        params['rhsquality'] = rhsradio;
+        params['lhsquality'] = lhsradio;
+        params['lshs'] = lshs;
+        params['rshs'] = rshs;
+        params['lsnotes'] = lsnotes;
+        params['rsnotes'] = rsnotes;
+        params['sbs'] = sbs;
+        params['task_id'] = "{{ task_id }}";
+        // set the flask route path and post
+        var path = '/sbs01';
+        post(path, params);
+    }
+</script>
+{% endblock %}
+
 {% block body %}
 <table class="mbtable">
     <tr>
