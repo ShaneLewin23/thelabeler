@@ -1,0 +1,57 @@
+{% extends "base.html" %}    
+
+{% block body %}
+<table class="mbtable">
+    <tr>
+        <td class="ltd">
+            <!--<div class='leftcol'>-->
+                {% for para in lst %}
+                    <div class="p"> {{para}}</div>
+                {% endfor %}
+        </td>
+        <td class="rtd">
+            {% for para in rst %}
+                    <div class="p"> {{para}}</div>
+                {% endfor %}
+        </td>
+    </tr>
+    <tr>
+        <td class='lsanots'>
+            <u>Quality of the answer:</u> <br/>
+            <input type="radio" name="lsRadio" value="perfect">Perfect
+            <input type="radio" name="lsRadio" value="good">Good
+            <input type="radio" name="lsRadio" value="ok">OK
+            <input type="radio" name="lsRadio" value="poor">Poor
+            <br><br>
+            Hallucination suspected? <input type="checkbox" id="lsh" name="lsh" value="Hallucination?">
+            <br><br>
+            Notes:<br><textarea style="width:400px;height:75px;" id='lsnotes'></textarea><br><br>
+        </td>
+        <td class="rsanots">
+            <u>Quality of the answer:</u> <br/>
+            <input type="radio" name="rsRadio" value="perfect">Perfect
+            <input type="radio" name="rsRadio" value="good">Good
+            <input type="radio" name="rsRadio" value="ok">OK
+            <input type="radio" name="rsRadio" value="poor">Poor
+            <br><br>
+            Hallucination suspected? <input type="checkbox" id="rsh" name="rsh" value="Hallucination?">
+            <br><br>
+            Notes:<br><textarea style="width:400px;height:75px;" id='rsnotes'></textarea><br><br>
+        </td>
+    </tr>
+    </table>
+    <br>
+    <div class="footer">
+        <input type="radio" name="sbs" value="lsmb">Left Side Much Better
+        <input type="radio" name="sbs" value="lsb">Left Side Better
+        <input type="radio" name="sbs" value="same">Equivalent
+        <input type="radio" name="sbs" value="rsb">Right Side Better
+        <input type="radio" name="sbs" value="rsmb">Right Side Much Better
+    </div>
+    <br>
+    <div class="footer">
+        <button class="submit_button" onclick="validate()" id="submit_button">Submit</button>
+        <br>
+        {{ debug_text }}
+{% endblock %}
+    

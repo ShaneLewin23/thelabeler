@@ -19,7 +19,18 @@ def index():
     """
     return s; 
 
-
+@app.route('/query', methods=['GET', 'POST'])
+def query_interface():
+    
+    if request.method == 'POST': 
+        pd = str(request.get_data('params'))
+        data = {}
+        
+    query_results = "RAd!"
+    return render_template("queryI.html",
+                           header_text="Query Interface",
+                           query_results = query_results
+    )
                         
 @app.route('/sbs01', methods=['GET', 'POST'])
 def sbs01():
@@ -63,7 +74,8 @@ def sbs01():
         lst = _rst
         rst = _lst
     task_id = str(uuid4())
-    return render_template("base.html",
+    return render_template("sbs.html",
+                           header_text="LLM sbs v0.1",
                            lst=lst,
                            rst=rst,
                            task_id=task_id,
